@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net46</TargetFramework>
+    <Version>0.1.0</Version>
+    <Authors>Ed Ball</Authors>
+    <Company />
+    <Product />
+    <Description>Generates a .nuspec file for a NuGet tools package from a Visual Studio 2017 console app project.</Description>
+    <Copyright>Copyright 2017 Ed Ball</Copyright>
+    <PackageProjectUrl>http://ejball.com/NuGetToolsPackager/</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/ejball/NuGetToolsPackager/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/ejball/NuGetToolsPackager.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>nuspec NuGet tools package</PackageTags>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ArgsReading" Version="1.1.0" />
+  </ItemGroup>
+
+</Project>
