@@ -4,7 +4,7 @@
 
 ## Installation
 
-Use [NuGet](https://www.nuget.org/) to install **NuGetToolsPackager** from its [NuGet package](https://www.nuget.org/packages/XmlDocMarkdown).
+Use [NuGet](https://www.nuget.org/) to install **NuGetToolsPackager** from its [NuGet package](https://www.nuget.org/packages/NuGetToolsPackager).
 
 For example, `nuget install NuGetToolsPackager -excludeversion` will download the latest version of `NuGetToolsPackager.exe` into `NuGetToolsPackager/tools`.
 
