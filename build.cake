@@ -9,6 +9,7 @@ var nugetApiKey = Argument("nugetApiKey", "");
 var trigger = Argument("trigger", "");
 
 var solutionFileName = "NuGetToolsPackager.sln";
+var nugetSource = "https://api.nuget.org/v3/index.json";
 
 Task("Clean")
 	.Does(() =>
@@ -58,7 +59,7 @@ Task("NuGetPublish")
 			if (trigger != null && trigger != $"v{version}")
 				throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
 
-			var pushSettings = new NuGetPushSettings { ApiKey = nugetApiKey };
+			var pushSettings = new NuGetPushSettings { ApiKey = nugetApiKey, Source = nugetSource };
 			foreach (var nupkgPath in nupkgPaths)
 				NuGetPush(nupkgPath, pushSettings);
 		}
