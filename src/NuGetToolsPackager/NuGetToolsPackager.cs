@@ -68,6 +68,7 @@ namespace NuGetToolsPackager
 				AddMetadataElement(metadataElement, "tags", projectElement, "PackageTags");
 
 #if false
+				// pending https://github.com/NuGet/Home/issues/5099
 				string repositoryUrl = projectElement.XPathSelectElement("PropertyGroup/RepositoryUrl")?.Value;
 				string repositoryType = projectElement.XPathSelectElement("PropertyGroup/RepositoryType")?.Value;
 				if (!string.IsNullOrWhiteSpace(repositoryUrl))

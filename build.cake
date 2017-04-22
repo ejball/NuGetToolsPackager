@@ -1,28 +1,14 @@
-#addin "nuget:?package=Cake.Git&version=0.14.0"
-#addin "nuget:?package=Octokit&version=0.24.0"
-#tool "nuget:?package=coveralls.io&version=1.3.4"
+﻿#tool "nuget:?package=XmlDocMarkdown&version=0.4.1"
 #tool "nuget:?package=xunit.runner.console&version=2.2.0"
 
-using LibGit2Sharp;
 using System.Text.RegularExpressions;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var nugetApiKey = Argument("nugetApiKey", "");
-var githubApiKey = Argument("githubApiKey", "");
+var trigger = Argument("trigger", "");
 
 var solutionFileName = "NuGetToolsPackager.sln";
-var githubOwner = "ejball";
-var githubRepo = "NuGetToolsPackager";
-var nugetSource = "https://api.nuget.org/v3/index.json";
-var nugetPackageProjects = new[] { @"src\NuGetToolsPackager\NuGetToolsPackager.csproj" };
-
-var rootPath = MakeAbsolute(Directory(".")).FullPath;
-var gitRepository = LibGit2Sharp.Repository.IsValid(rootPath) ? new LibGit2Sharp.Repository(rootPath) : null;
-
-var githubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("build.cake"));
-if (!string.IsNullOrEmpty(githubApiKey))
-	githubClient.Credentials = new Octokit.Credentials(githubApiKey);
 
 Task("Clean")
 	.Does(() =>
@@ -39,7 +25,7 @@ Task("Build")
 	.Does(() =>
 	{
 		DotNetCoreRestore(solutionFileName);
-		DotNetCoreBuild(solutionFileName, new DotNetCoreBuildSettings { Configuration = configuration });
+		DotNetCoreBuild(solutionFileName, new DotNetCoreBuildSettings { Configuration = configuration, ArgumentCustomization = args => args.Append("--verbosity normal") });
 	});
 
 Task("NuGetPackage")
@@ -52,40 +38,34 @@ Task("NuGetPackage")
 
 Task("NuGetPublish")
 	.IsDependentOn("NuGetPackage")
-	.WithCriteria(() => !string.IsNullOrEmpty(nugetApiKey) && !string.IsNullOrEmpty(githubApiKey))
+	.WithCriteria(() => !string.IsNullOrEmpty(nugetApiKey))
 	.Does(() =>
 	{
-		var dirtyEntry = gitRepository.RetrieveStatus().FirstOrDefault(x => x.State != FileStatus.Unaltered && x.State != FileStatus.Ignored);
-		if (dirtyEntry != null)
-			throw new InvalidOperationException($"The git working directory must be clean, but '{dirtyEntry.FilePath}' is dirty.");
-
-		string headSha = gitRepository.Head.Tip.Sha;
-		try
-		{
-			githubClient.Repository.Commit.GetSha1(githubOwner, githubRepo, headSha).GetAwaiter().GetResult();
-		}
-		catch (Octokit.NotFoundException exception)
-		{
-			throw new InvalidOperationException($"The current commit '{headSha}' must be pushed to GitHub.", exception);
-		}
+		var nupkgPaths = GetFiles("release/*.nupkg").Select(x => x.FullPath).ToList();
 
 		string version = null;
-		var pushSettings = new NuGetPushSettings { ApiKey = nugetApiKey, Source = nugetSource };
-		foreach (var nupkgPath in GetFiles("release/*.nupkg").Select(x => x.FullPath))
+		foreach (var nupkgPath in nupkgPaths)
 		{
 			string nupkgVersion = Regex.Match(nupkgPath, @"\.([^\.]+\.[^\.]+\.[^\.]+)\.nupkg$").Groups[1].ToString();
 			if (version == null)
 				version = nupkgVersion;
 			else if (version != nupkgVersion)
 				throw new InvalidOperationException($"Mismatched package versions '{version}' and '{nupkgVersion}'.");
-
-			NuGetPush(nupkgPath, pushSettings);
 		}
 
-		var tagName = $"nuget-{version}";
-		Information($"Creating git tag '{tagName}'...");
-		githubClient.Git.Reference.Create(githubOwner, githubRepo,
-			new Octokit.NewReference($"refs/tags/{tagName}", headSha)).GetAwaiter().GetResult();
+		if (trigger == null || Regex.IsMatch(trigger, "^v[0-9]"))
+		{
+			if (trigger != null && trigger != $"v{version}")
+				throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
+
+			var pushSettings = new NuGetPushSettings { ApiKey = nugetApiKey };
+			foreach (var nupkgPath in nupkgPaths)
+				NuGetPush(nupkgPath, pushSettings);
+		}
+		else
+		{
+			Information("To publish this package, push this git tag: v" + version);
+		}
 	});
 
 Task("Default")

@@ -1,4 +1,4 @@
-.vs/
+﻿.vs/
 bin/
 cake/
 obj/
@@ -11,4 +11,5 @@ release/
 *.nuspec
 *.suo
 *.user
+
 launchSettings.json
