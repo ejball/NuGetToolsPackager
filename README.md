@@ -1,1 +1,1 @@
-### https://faithlife.github.io/RepoName/
+### http://ejball.com/RepoName/
