@@ -1,6 +1,3 @@
-﻿#tool "nuget:?package=XmlDocMarkdown&version=0.4.1"
-#tool "nuget:?package=xunit.runner.console&version=2.2.0"
-
 using System.Text.RegularExpressions;
 
 var target = Argument("target", "Default");
@@ -22,24 +19,26 @@ Task("Clean")
 	});
 
 Task("Build")
-	.IsDependentOn("Clean")
 	.Does(() =>
 	{
 		DotNetCoreRestore(solutionFileName);
 		DotNetCoreBuild(solutionFileName, new DotNetCoreBuildSettings { Configuration = configuration, ArgumentCustomization = args => args.Append("--verbosity normal") });
 	});
 
+Task("Rebuild")
+	.IsDependentOn("Clean")
+	.IsDependentOn("Build");
+
 Task("NuGetPackage")
-	.IsDependentOn("Build")
+	.IsDependentOn("Rebuild")
 	.Does(() =>
 	{
-		ExecuteProcess($@"src\NuGetToolsPackager\bin\{configuration}\net46\NuGetToolsPackager.exe", @"src\NuGetToolsPackager\NuGetToolsPackager.csproj --platform net46");
+		ExecuteProcess($@"src\NuGetToolsPackager\bin\{configuration}\net461\NuGetToolsPackager.exe", @"src\NuGetToolsPackager\NuGetToolsPackager.csproj --platform net461");
 		NuGetPack(@"src\NuGetToolsPackager\NuGetToolsPackager.nuspec", new NuGetPackSettings { OutputDirectory = "release" });
 	});
 
 Task("NuGetPublish")
 	.IsDependentOn("NuGetPackage")
-	.WithCriteria(() => !string.IsNullOrEmpty(nugetApiKey))
 	.Does(() =>
 	{
 		var nupkgPaths = GetFiles("release/*.nupkg").Select(x => x.FullPath).ToList();
@@ -54,7 +53,7 @@ Task("NuGetPublish")
 				throw new InvalidOperationException($"Mismatched package versions '{version}' and '{nupkgVersion}'.");
 		}
 
-		if (trigger == null || Regex.IsMatch(trigger, "^v[0-9]"))
+		if (!string.IsNullOrEmpty(nugetApiKey) && (trigger == null || Regex.IsMatch(trigger, "^v[0-9]")))
 		{
 			if (trigger != null && trigger != $"v{version}")
 				throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
