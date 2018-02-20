@@ -19,8 +19,6 @@
     <Copyright>Copyright 2018 Ed Ball</Copyright>
     <Description>Generates a .nuspec file for a NuGet tools package from a Visual Studio 2017 console app project.</Description>
     <PackageTags>nuspec NuGet tools package</PackageTags>
-    <SourceLinkUrl>https://raw.githubusercontent.com/ejball/NuGetToolsPackager/{commit}/*</SourceLinkUrl>
-    <SourceLinkOriginUrl>https://github.com/ejball/NuGetToolsPackager.git</SourceLinkOriginUrl>
   </PropertyGroup>
 
   <ItemGroup>
