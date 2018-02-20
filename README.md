@@ -7,7 +7,6 @@
 Ubuntu | Windows | NuGet
 --- | --- | ---
 [![Travis CI](https://img.shields.io/travis/ejball/NuGetToolsPackager/master.svg)](https://travis-ci.org/ejball/NuGetToolsPackager) | [![AppVeyor](https://img.shields.io/appveyor/ci/ejball/nugettoolspackager/master.svg)](https://ci.appveyor.com/project/ejball/nugettoolspackager) | [![NuGet](https://img.shields.io/nuget/v/NuGetToolsPackager.svg)](https://www.nuget.org/packages/NuGetToolsPackager)
-[![NuGet](https://img.shields.io/nuget/v/NuGetToolsPackager.svg)](https://www.nuget.org/packages/NuGetToolsPackager) [![Build status](https://ci.appveyor.com/api/projects/status/c6cu9ec8hsquya5n?svg=true)](https://ci.appveyor.com/project/ejball/nugettoolspackager)
 
 ## Documentation
 
