@@ -9,6 +9,10 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 
 ## Released
 
+### 1.0.1
+
+* Fix NuGet package metadata release notes link.
+
 ### 1.0.0
 
 * Initial release.
