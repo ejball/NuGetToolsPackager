@@ -1,12 +1,12 @@
-# ProjectName
+# NuGetToolsPackager
 
-**ProjectName** description
+**NuGetToolsPackager** description
 
 ## Installation
 
-ProjectName should be installed [via NuGet](https://www.nuget.org/packages/ProjectName).
+NuGetToolsPackager should be installed [via NuGet](https://www.nuget.org/packages/NuGetToolsPackager).
 
 ## Documentation
 
-* [Reference Documentation](ProjectName.md)
+* [Reference Documentation](NuGetToolsPackager.md)
 
