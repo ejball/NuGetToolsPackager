@@ -33,8 +33,8 @@ Task("NuGetPackage")
 	.IsDependentOn("Rebuild")
 	.Does(() =>
 	{
-		ExecuteProcess($@"src\NuGetToolsPackager\bin\{configuration}\net461\NuGetToolsPackager.exe", @"src\NuGetToolsPackager\NuGetToolsPackager.csproj --platform net461");
-		NuGetPack(@"src\NuGetToolsPackager\NuGetToolsPackager.nuspec", new NuGetPackSettings { OutputDirectory = "release" });
+		ExecuteProcess(File($"src/NuGetToolsPackager/bin/{configuration}/net461/NuGetToolsPackager.exe"), $"{File("src/NuGetToolsPackager/NuGetToolsPackager.csproj")} --platform net461");
+		NuGetPack(File("src/NuGetToolsPackager/NuGetToolsPackager.nuspec"), new NuGetPackSettings { OutputDirectory = "release" });
 	});
 
 Task("NuGetPublish")
@@ -73,6 +73,11 @@ Task("Default")
 
 void ExecuteProcess(string exePath, string arguments)
 {
+	if (IsRunningOnUnix())
+	{
+		arguments = exePath + " " + arguments;
+		exePath = "mono";
+	}
 	int exitCode = StartProcess(exePath, arguments);
 	if (exitCode != 0)
 		throw new InvalidOperationException($"{exePath} failed with exit code {exitCode}.");
