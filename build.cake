@@ -64,7 +64,7 @@ Task("NuGetPublish")
 		}
 		else
 		{
-			Information("To publish this package, push this git tag: v" + version);
+			Information("To publish the NuGet package, push this git tag: v" + version);
 		}
 	});
 
@@ -73,7 +73,7 @@ Task("Default")
 
 void ExecuteProcess(string exePath, string arguments)
 {
-	if (IsRunningOnUnix())
+	if (Context.Environment.Platform.IsUnix())
 	{
 		arguments = exePath + " " + arguments;
 		exePath = "mono";
