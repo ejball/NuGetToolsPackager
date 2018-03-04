@@ -39,7 +39,7 @@ Task("NuGetPackage")
 
 		ExecuteProcess(File($"src/NuGetToolsPackager/bin/{configuration}/net461/NuGetToolsPackager.exe"),
 			$"{File("src/NuGetToolsPackager/NuGetToolsPackager.csproj")} --platform net461" +
-			(versionSuffix != null ? $@" --versionSuffix ""{versionSuffix}""" : ""));
+			(string.IsNullOrEmpty(versionSuffix) ? "" : $@" --versionSuffix ""{versionSuffix}"""));
 
 		NuGetPack(File("src/NuGetToolsPackager/NuGetToolsPackager.nuspec"), new NuGetPackSettings { OutputDirectory = "release" });
 	});
