@@ -29,6 +29,7 @@ namespace NuGetToolsPackager
 				string configuration = argsReader.ReadOption("configuration") ?? "Release";
 				string platform = argsReader.ReadOption("platform");
 				string filespecs = argsReader.ReadOption("files") ?? "*.exe;*.dll;*.config";
+				string versionSuffix = argsReader.ReadOption("versionSuffix");
 				bool isQuiet = argsReader.ReadFlag("quiet");
 
 				string csprojPath = argsReader.ReadArgument();
@@ -43,8 +44,12 @@ namespace NuGetToolsPackager
 				string getPropertyValue(string name) => projectProperties.TryGetValue(name, out string value) ? value : null;
 
 				string version = getPropertyValue("Version");
+				string versionPrefix = getPropertyValue("VersionPrefix");
+				if (version == null && versionPrefix == null)
+					throw new ApplicationException("Project file must have <Version> or <VersionPrefix>.");
+
 				if (version == null)
-					throw new ApplicationException("Project file is missing <Version>.");
+					version = versionSuffix != null ? $"{versionPrefix}-{versionSuffix}" : versionPrefix;
 
 				var packageDocument = new XDocument();
 				var packageElement = new XElement(XName.Get("package", c_ns));
@@ -165,6 +170,8 @@ namespace NuGetToolsPackager
 			textWriter.WriteLine("      The project platform to use, e.g. net46.");
 			textWriter.WriteLine("   --files <filespecs>");
 			textWriter.WriteLine("      The files to be included in the NuGet package, e.g. *.exe;*.dll");
+			textWriter.WriteLine("   --versionSuffix <suffix>");
+			textWriter.WriteLine("      The suffix to be appended to the VersionPrefix.");
 			textWriter.WriteLine("   --quiet");
 			textWriter.WriteLine("      Suppresses normal console output.");
 		}

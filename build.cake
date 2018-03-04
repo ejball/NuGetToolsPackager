@@ -4,6 +4,7 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var nugetApiKey = Argument("nugetApiKey", "");
 var trigger = Argument("trigger", "");
+var versionSuffix = Argument("versionSuffix", "");
 
 var solutionFileName = "NuGetToolsPackager.sln";
 var nugetSource = "https://api.nuget.org/v3/index.json";
@@ -33,7 +34,13 @@ Task("NuGetPackage")
 	.IsDependentOn("Rebuild")
 	.Does(() =>
 	{
-		ExecuteProcess(File($"src/NuGetToolsPackager/bin/{configuration}/net461/NuGetToolsPackager.exe"), $"{File("src/NuGetToolsPackager/NuGetToolsPackager.csproj")} --platform net461");
+		if (string.IsNullOrEmpty(versionSuffix) && !string.IsNullOrEmpty(trigger))
+			versionSuffix = Regex.Match(trigger, @"^v[^\.]+\.[^\.]+\.[^\.]+-(.+)").Groups[1].ToString();
+
+		ExecuteProcess(File($"src/NuGetToolsPackager/bin/{configuration}/net461/NuGetToolsPackager.exe"),
+			$"{File("src/NuGetToolsPackager/NuGetToolsPackager.csproj")} --platform net461" +
+			(versionSuffix != null ? $@" --versionSuffix ""{versionSuffix}""" : ""));
+
 		NuGetPack(File("src/NuGetToolsPackager/NuGetToolsPackager.nuspec"), new NuGetPackSettings { OutputDirectory = "release" });
 	});
 
