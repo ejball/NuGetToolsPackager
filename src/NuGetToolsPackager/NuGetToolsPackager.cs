@@ -37,11 +37,10 @@ namespace NuGetToolsPackager
 
 				argsReader.VerifyComplete();
 
-				var projectElement = XDocument.Load(csprojPath).Root;
-				if (projectElement == null)
-					throw new ApplicationException("Failed to load project file.");
+				var projectProperties = new Dictionary<string, string>();
+				LoadProjectProperties(projectProperties, csprojPath);
 
-				string getPropertyValue(string name) => projectElement.Elements("PropertyGroup").SelectMany(x => x.Elements(name)).LastOrDefault()?.Value;
+				string getPropertyValue(string name) => projectProperties.TryGetValue(name, out string value) ? value : null;
 
 				string version = getPropertyValue("Version");
 				if (version == null)
@@ -118,6 +117,28 @@ namespace NuGetToolsPackager
 				{
 					Console.Error.WriteLine(exception.ToString());
 					return 3;
+				}
+			}
+		}
+
+		private void LoadProjectProperties(Dictionary<string, string> properties, string csprojPath)
+		{
+			var projectElement = XDocument.Load(csprojPath).Root;
+			if (projectElement == null)
+				throw new ApplicationException($"Failed to load project file: {csprojPath}");
+
+			foreach (var element in projectElement.Elements())
+			{
+				if (element.Name == "PropertyGroup")
+				{
+					foreach (var propertyElement in element.Elements())
+						properties[propertyElement.Name.LocalName] = propertyElement.Value;
+				}
+				else if (element.Name == "Import")
+				{
+					string importPath = element.Attribute("Project")?.Value;
+					if (importPath != null)
+						LoadProjectProperties(properties, Path.Combine(Path.GetDirectoryName(csprojPath) ?? ".", importPath));
 				}
 			}
 		}

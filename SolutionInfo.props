@@ -1,0 +1,15 @@
+<Project>
+
+  <PropertyGroup>
+    <Version>1.1.0</Version>
+    <Copyright>Copyright 2018 Ed Ball</Copyright>
+    <Authors>Ed Ball</Authors>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/ejball/NuGetToolsPackager/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>http://ejball.com/NuGetToolsPackager/</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/ejball/NuGetToolsPackager/blob/master/VersionHistory.md#released</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/ejball/NuGetToolsPackager.git</RepositoryUrl>
+    <SourceLinkUrl>https://raw.githubusercontent.com/ejball/NuGetToolsPackager/{commit}/*</SourceLinkUrl>
+    <SourceLinkOriginUrl>https://github.com/ejball/NuGetToolsPackager.git</SourceLinkOriginUrl>
+  </PropertyGroup>
+
+</Project>
