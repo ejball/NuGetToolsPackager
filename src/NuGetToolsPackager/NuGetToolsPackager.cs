@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.XPath;
 using ArgsReading;
 
 namespace NuGetToolsPackager
@@ -42,7 +41,9 @@ namespace NuGetToolsPackager
 				if (projectElement == null)
 					throw new ApplicationException("Failed to load project file.");
 
-				string version = projectElement.XPathSelectElement("PropertyGroup/Version")?.Value;
+				string getPropertyValue(string name) => projectElement.Elements("PropertyGroup").SelectMany(x => x.Elements(name)).LastOrDefault()?.Value;
+
+				string version = getPropertyValue("Version");
 				if (version == null)
 					throw new ApplicationException("Project file is missing <Version>.");
 
@@ -52,25 +53,25 @@ namespace NuGetToolsPackager
 				var metadataElement = new XElement(XName.Get("metadata", c_ns));
 				packageElement.Add(metadataElement);
 
-				string packageId = projectElement.XPathSelectElement("PropertyGroup/PackageId")?.Value ?? Path.GetFileNameWithoutExtension(csprojPath);
+				string packageId = getPropertyValue("PackageId") ?? Path.GetFileNameWithoutExtension(csprojPath);
 				metadataElement.Add(new XElement(XName.Get("id", c_ns), packageId));
 				metadataElement.Add(new XElement(XName.Get("version", c_ns), version));
 
-				AddMetadataElement(metadataElement, "description", projectElement, "Description", "");
-				AddMetadataElement(metadataElement, "authors", projectElement, "Authors", "");
-				AddMetadataElement(metadataElement, "owners", projectElement, "Authors", "");
-				AddMetadataElement(metadataElement, "projectUrl", projectElement, "PackageProjectUrl");
-				AddMetadataElement(metadataElement, "licenseUrl", projectElement, "PackageLicenseUrl");
-				AddMetadataElement(metadataElement, "iconUrl", projectElement, "PackageIconUrl");
-				AddMetadataElement(metadataElement, "requireLicenseAcceptance", projectElement, "PackageRequireLicenseAcceptance");
-				AddMetadataElement(metadataElement, "releaseNotes", projectElement, "PackageReleaseNotes");
-				AddMetadataElement(metadataElement, "copyright", projectElement, "Copyright");
-				AddMetadataElement(metadataElement, "tags", projectElement, "PackageTags");
+				AddMetadataElement(metadataElement, "description", getPropertyValue, "Description", "");
+				AddMetadataElement(metadataElement, "authors", getPropertyValue, "Authors", "");
+				AddMetadataElement(metadataElement, "owners", getPropertyValue, "Authors", "");
+				AddMetadataElement(metadataElement, "projectUrl", getPropertyValue, "PackageProjectUrl");
+				AddMetadataElement(metadataElement, "licenseUrl", getPropertyValue, "PackageLicenseUrl");
+				AddMetadataElement(metadataElement, "iconUrl", getPropertyValue, "PackageIconUrl");
+				AddMetadataElement(metadataElement, "requireLicenseAcceptance", getPropertyValue, "PackageRequireLicenseAcceptance");
+				AddMetadataElement(metadataElement, "releaseNotes", getPropertyValue, "PackageReleaseNotes");
+				AddMetadataElement(metadataElement, "copyright", getPropertyValue, "Copyright");
+				AddMetadataElement(metadataElement, "tags", getPropertyValue, "PackageTags");
 
 #if false
 				// pending https://github.com/NuGet/Home/issues/5099
-				string repositoryUrl = projectElement.XPathSelectElement("PropertyGroup/RepositoryUrl")?.Value;
-				string repositoryType = projectElement.XPathSelectElement("PropertyGroup/RepositoryType")?.Value;
+				string repositoryUrl = getPropertyValue("RepositoryUrl");
+				string repositoryType = getPropertyValue("RepositoryType");
 				if (!string.IsNullOrWhiteSpace(repositoryUrl))
 				{
 					var repositoryElement = new XElement(XName.Get("repository", c_ns));
@@ -121,9 +122,9 @@ namespace NuGetToolsPackager
 			}
 		}
 
-		private void AddMetadataElement(XElement metadataElement, string targetName, XElement projectElement, string propertyName, string defaultValue = null)
+		private void AddMetadataElement(XElement metadataElement, string targetName, Func<string, string> getPropertyValue, string propertyName, string defaultValue = null)
 		{
-			string propertyValue = projectElement.XPathSelectElement($"PropertyGroup/{propertyName}")?.Value ?? defaultValue;
+			string propertyValue = getPropertyValue(propertyName) ?? defaultValue;
 			if (propertyValue != null)
 				metadataElement.Add(new XElement(XName.Get(targetName, c_ns), propertyValue));
 		}
