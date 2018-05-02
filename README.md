@@ -10,7 +10,7 @@ Ubuntu | Windows | NuGet
 
 ## Documentation
 
-* http://ejball.com/NuGetToolsPackager/
+* https://ejball.com/NuGetToolsPackager/
 * License: [MIT](LICENSE)
 * [Version History](VersionHistory.md)
 * [Contributing Guidelines](CONTRIBUTING.md)
